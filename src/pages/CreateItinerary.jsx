@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Plus, Trash2, Save, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useItinerary } from '../context/ItineraryContext';
+import { createLocalDate } from '../utils/dateUtils';
 
 const activityTypes = [
   { value: 'arrival', label: 'Arrival' },
@@ -121,7 +122,7 @@ export default function CreateItinerary() {
 
       const itineraryId = await createItinerary({
         ...formData,
-        date: new Date(formData.date),
+        date: createLocalDate(formData.date),
         keyLocations,
         activities,
       });

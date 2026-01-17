@@ -1,13 +1,13 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft, Calendar, MapPin, DollarSign, Clock, Edit, Trash2, Check, Share, Plus
+  ArrowLeft, Calendar, MapPin, DollarSign, Clock, Edit, Trash2, Check, Share, Plus, CalendarPlus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useItinerary } from '../context/ItineraryContext';
 import ActivityCard from '../components/itinerary/ActivityCard';
 import ActivityForm from '../components/itinerary/ActivityForm';
 import Countdown from '../components/features/Countdown';
-import { formatDate, isUpcoming } from '../utils/dateUtils';
+import { formatDate, isUpcoming, generateGoogleCalendarLink } from '../utils/dateUtils';
 import { useState } from 'react';
 
 export default function ItineraryDetail() {
@@ -103,6 +103,11 @@ export default function ItineraryDetail() {
     }
   };
 
+  const handleAddToCalendar = () => {
+    const calendarLink = generateGoogleCalendarLink(itinerary);
+    window.open(calendarLink, '_blank');
+  };
+
   const sortedActivities = [...(itinerary.activities || [])].sort((a, b) => a.order - b.order);
   const isDateUpcoming = isUpcoming(itinerary.date);
   const allActivitiesCompleted = sortedActivities.every(a => a.completed);
@@ -133,20 +138,30 @@ export default function ItineraryDetail() {
 
             <div className="flex items-center gap-2">
               <button
+                onClick={handleAddToCalendar}
+                className="p-2 rounded-lg text-ink-lighter hover:bg-blush hover:text-rose-500"
+                title="Add to Google Calendar"
+              >
+                <CalendarPlus className="w-5 h-5" />
+              </button>
+              <button
                 onClick={handleShare}
                 className="p-2 rounded-lg text-ink-lighter hover:bg-blush hover:text-rose-500"
+                title="Share"
               >
                 <Share className="w-5 h-5" />
               </button>
               <Link
                 to={`/itineraries/${id}/edit`}
                 className="p-2 rounded-lg text-ink-lighter hover:bg-blush hover:text-rose-500"
+                title="Edit"
               >
                 <Edit className="w-5 h-5" />
               </Link>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 className="p-2 rounded-lg text-ink-lighter hover:bg-rose-50 hover:text-rose-500"
+                title="Delete"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
