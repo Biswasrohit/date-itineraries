@@ -1,0 +1,270 @@
+/* Google Fonts - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
+@import "tailwindcss";
+
+/* Custom Theme for Rani's Journal */
+@theme {
+  /* Romantic Color Palette */
+  --color-rose-50: #fff1f2;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #fecdd3;
+  --color-rose-300: #fda4af;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #f43f5e;
+  --color-rose-600: #e11d48;
+  --color-rose-700: #be123c;
+  --color-rose-800: #9f1239;
+  --color-rose-900: #881337;
+
+  /* Warm Neutrals */
+  --color-blush: #F8EDEE;
+  --color-cream: #FDF8F5;
+  --color-sand: #F5F1EA;
+  --color-ink: #1E1E1E;
+  --color-ink-light: #4A4A4A;
+  --color-ink-lighter: #6B6B6B;
+
+  /* Gold Accent */
+  --color-gold: #D4AF37;
+  --color-gold-light: #E5C76B;
+  --color-gold-dark: #B8960C;
+
+  /* Activity Type Colors */
+  --color-shopping: #ec4899;
+  --color-dining: #f97316;
+  --color-cafe: #84cc16;
+  --color-activity: #3b82f6;
+  --color-travel: #8b5cf6;
+  --color-arrival: #06b6d4;
+  --color-surprise: #f43f5e;
+
+  /* Typography */
+  --font-display: 'Playfair Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-script: 'Dancing Script', cursive;
+
+  /* Shadows */
+  --shadow-soft: 0 4px 20px rgba(244, 63, 94, 0.08);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 8px 30px rgba(244, 63, 94, 0.12);
+
+  /* Border Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography Utilities */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-script {
+  font-family: var(--font-script);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-blush);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-rose-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-rose-400);
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-romantic {
+  background: linear-gradient(135deg, var(--color-rose-100) 0%, var(--color-cream) 50%, var(--color-blush) 100%);
+}
+
+.bg-gradient-gold {
+  background: linear-gradient(135deg, var(--color-rose-400) 0%, var(--color-gold) 100%);
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Button Base */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--color-rose-500);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-rose-600);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--color-blush);
+  color: var(--color-rose-600);
+}
+
+.btn-secondary:hover {
+  background: var(--color-rose-100);
+}
+
+.btn-gold {
+  background: var(--color-gold);
+  color: white;
+}
+
+.btn-gold:hover {
+  background: var(--color-gold-dark);
+}
+
+/* Activity Type Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.badge-shopping { background: #fce7f3; color: #be185d; }
+.badge-dining { background: #ffedd5; color: #c2410c; }
+.badge-cafe { background: #ecfccb; color: #4d7c0f; }
+.badge-activity { background: #dbeafe; color: #1d4ed8; }
+.badge-travel { background: #ede9fe; color: #6d28d9; }
+.badge-arrival { background: #cffafe; color: #0e7490; }
+.badge-surprise { background: #ffe4e6; color: #be123c; }
+
+/* Timeline Styles */
+.timeline-line {
+  position: absolute;
+  left: 3.75rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--color-rose-200), var(--color-rose-400));
+}
+
+.timeline-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-rose-500);
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--color-rose-200);
+}
+
+.timeline-dot-completed {
+  background: var(--color-gold);
+  box-shadow: 0 0 0 2px var(--color-gold-light);
+}
+
+/* Input Styles - padding-left controlled by Tailwind pl-* classes */
+.input {
+  width: 100%;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  padding-right: 1rem;
+  border: 2px solid var(--color-blush);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-rose-400);
+  box-shadow: 0 0 0 3px var(--color-rose-100);
+}
+
+.input::placeholder {
+  color: var(--color-ink-lighter);
+}
+
+/* Heart Animation */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Status Badge */
+.status-upcoming {
+  background: linear-gradient(135deg, var(--color-rose-400), var(--color-rose-500));
+  color: white;
+}
+
+.status-completed {
+  background: linear-gradient(135deg, var(--color-gold-light), var(--color-gold));
+  color: white;
+}
