@@ -5,4 +5,12 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    // Enable SPA fallback for development
+    historyApiFallback: true,
+  },
+  preview: {
+    // Enable SPA fallback for preview builds
+    historyApiFallback: true,
+  },
 })
