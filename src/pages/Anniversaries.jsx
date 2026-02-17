@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Star, Plus, Calendar, Heart, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { formatDate, getRelativeDate } from '../utils/dateUtils';
 import { useCountdown } from '../hooks/useCountdown';
 
@@ -69,7 +69,10 @@ function AnniversaryCard({ anniversary, onDelete }) {
 }
 
 export default function Anniversaries() {
-  const [anniversaries, setAnniversaries] = useState([]);
+  const anniversaries = useQuery(api.anniversaries.list) || [];
+  const createAnniversary = useMutation(api.anniversaries.create);
+  const removeAnniversary = useMutation(api.anniversaries.remove);
+
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -79,31 +82,16 @@ export default function Anniversaries() {
   });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const q = query(collection(db, 'anniversaries'), orderBy('date', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date?.toDate?.() || new Date(doc.data().date)
-      }));
-      setAnniversaries(data);
-    }, (error) => {
-      console.error('Error fetching anniversaries:', error);
-    });
-
-    return unsubscribe;
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await addDoc(collection(db, 'anniversaries'), {
-        ...formData,
-        date: new Date(formData.date),
-        createdAt: serverTimestamp(),
+      await createAnniversary({
+        title: formData.title,
+        date: new Date(formData.date).getTime(),
+        description: formData.description || undefined,
+        recurring: formData.recurring,
       });
       setFormData({ title: '', date: '', description: '', recurring: true });
       setShowForm(false);
@@ -116,7 +104,7 @@ export default function Anniversaries() {
 
   const handleDelete = async (id) => {
     try {
-      await deleteDoc(doc(db, 'anniversaries', id));
+      await removeAnniversary({ id });
     } catch (error) {
       console.error('Failed to delete anniversary:', error);
     }

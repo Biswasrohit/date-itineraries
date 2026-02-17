@@ -1,32 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageCircleHeart, Send, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { format } from 'date-fns';
 
 export default function LoveNotesPage() {
-  const [notes, setNotes] = useState([]);
+  const notes = useQuery(api.loveNotes.list) || [];
+  const sendNote = useMutation(api.loveNotes.send);
+
   const [newMessage, setNewMessage] = useState('');
   const [senderName, setSenderName] = useState(localStorage.getItem('loveNoteName') || '');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    const q = query(collection(db, 'loveNotes'), orderBy('createdAt', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.() || new Date()
-      }));
-      setNotes(data);
-    }, (error) => {
-      console.error('Error fetching notes:', error);
-    });
-
-    return unsubscribe;
-  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,10 +27,9 @@ export default function LoveNotesPage() {
 
     setLoading(true);
     try {
-      await addDoc(collection(db, 'loveNotes'), {
+      await sendNote({
         fromName: senderName.trim(),
         message: newMessage.trim(),
-        createdAt: serverTimestamp()
       });
       setNewMessage('');
     } catch (error) {

@@ -1,16 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import {
-  collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  onSnapshot,
-  query,
-  orderBy,
-  serverTimestamp
-} from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { createContext, useContext, useCallback } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 const ItineraryContext = createContext();
 
@@ -19,63 +9,36 @@ export function useItinerary() {
 }
 
 export function ItineraryProvider({ children }) {
-  const [itineraries, setItineraries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const rawItineraries = useQuery(api.itineraries.list);
+  const itineraries = rawItineraries ?? [];
+  const loading = rawItineraries === undefined;
 
-  // Subscribe to itineraries collection
-  useEffect(() => {
-    const q = query(
-      collection(db, 'itineraries'),
-      orderBy('date', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const itineraryData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        // Convert Firestore timestamp to Date
-        date: doc.data().date?.toDate?.() || new Date(doc.data().date)
-      }));
-      setItineraries(itineraryData);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error fetching itineraries:', error);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
+  const createMutation = useMutation(api.itineraries.create);
+  const updateMutation = useMutation(api.itineraries.update);
+  const removeMutation = useMutation(api.itineraries.remove);
   // Create new itinerary
   const createItinerary = useCallback(async (itineraryData) => {
-    const newItinerary = {
-      ...itineraryData,
-      status: 'upcoming',
+    const id = await createMutation({
+      title: itineraryData.title,
+      date: itineraryData.date instanceof Date ? itineraryData.date.getTime() : itineraryData.date,
+      description: itineraryData.description,
       activities: itineraryData.activities || [],
       travelSegments: itineraryData.travelSegments || [],
       keyLocations: itineraryData.keyLocations || [],
-      budget: itineraryData.budget || { estimated: { total: 0, breakdown: '' }, actual: { total: null, breakdown: null } },
-      memories: { photos: [], reflection: '', favoriteMemory: '', rating: null },
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    };
-
-    const docRef = await addDoc(collection(db, 'itineraries'), newItinerary);
-    return docRef.id;
-  }, []);
+      budget: itineraryData.budget,
+    });
+    return id;
+  }, [createMutation]);
 
   // Update itinerary
   const updateItinerary = useCallback(async (id, updates) => {
-    await updateDoc(doc(db, 'itineraries', id), {
-      ...updates,
-      updatedAt: serverTimestamp()
-    });
-  }, []);
+    await updateMutation({ id, updates });
+  }, [updateMutation]);
 
   // Delete itinerary
   const deleteItinerary = useCallback(async (id) => {
-    await deleteDoc(doc(db, 'itineraries', id));
-  }, []);
+    await removeMutation({ id });
+  }, [removeMutation]);
 
   // Add activity to itinerary
   const addActivity = useCallback(async (itineraryId, activity) => {
@@ -86,14 +49,14 @@ export function ItineraryProvider({ children }) {
       id: crypto.randomUUID(),
       ...activity,
       completed: false,
-      order: itinerary.activities.length
+      order: itinerary.activities.length,
     };
 
-    await updateDoc(doc(db, 'itineraries', itineraryId), {
-      activities: [...itinerary.activities, newActivity],
-      updatedAt: serverTimestamp()
+    await updateMutation({
+      id: itineraryId,
+      updates: { activities: [...itinerary.activities, newActivity] },
     });
-  }, [itineraries]);
+  }, [itineraries, updateMutation]);
 
   // Update activity
   const updateActivity = useCallback(async (itineraryId, activityId, updates) => {
@@ -104,11 +67,11 @@ export function ItineraryProvider({ children }) {
       a.id === activityId ? { ...a, ...updates } : a
     );
 
-    await updateDoc(doc(db, 'itineraries', itineraryId), {
-      activities: updatedActivities,
-      updatedAt: serverTimestamp()
+    await updateMutation({
+      id: itineraryId,
+      updates: { activities: updatedActivities },
     });
-  }, [itineraries]);
+  }, [itineraries, updateMutation]);
 
   // Delete activity
   const deleteActivity = useCallback(async (itineraryId, activityId) => {
@@ -119,11 +82,11 @@ export function ItineraryProvider({ children }) {
       .filter(a => a.id !== activityId)
       .map((a, index) => ({ ...a, order: index }));
 
-    await updateDoc(doc(db, 'itineraries', itineraryId), {
-      activities: updatedActivities,
-      updatedAt: serverTimestamp()
+    await updateMutation({
+      id: itineraryId,
+      updates: { activities: updatedActivities },
     });
-  }, [itineraries]);
+  }, [itineraries, updateMutation]);
 
   // Reorder activities
   const reorderActivities = useCallback(async (itineraryId, newOrder) => {
@@ -135,27 +98,27 @@ export function ItineraryProvider({ children }) {
       return { ...activity, order: index };
     });
 
-    await updateDoc(doc(db, 'itineraries', itineraryId), {
-      activities: reorderedActivities,
-      updatedAt: serverTimestamp()
+    await updateMutation({
+      id: itineraryId,
+      updates: { activities: reorderedActivities },
     });
-  }, [itineraries]);
+  }, [itineraries, updateMutation]);
 
   // Mark itinerary as completed
   const markAsCompleted = useCallback(async (id) => {
-    await updateDoc(doc(db, 'itineraries', id), {
-      status: 'completed',
-      updatedAt: serverTimestamp()
+    await updateMutation({
+      id,
+      updates: { status: 'completed' },
     });
-  }, []);
+  }, [updateMutation]);
 
   // Add memories to itinerary
   const addMemories = useCallback(async (itineraryId, memories) => {
-    await updateDoc(doc(db, 'itineraries', itineraryId), {
-      memories,
-      updatedAt: serverTimestamp()
+    await updateMutation({
+      id: itineraryId,
+      updates: { memories },
     });
-  }, []);
+  }, [updateMutation]);
 
   // Get upcoming itineraries
   const getUpcoming = useCallback(() => {
@@ -194,7 +157,7 @@ export function ItineraryProvider({ children }) {
     getUpcoming,
     getCompleted,
     getNextDate,
-    getItineraryById
+    getItineraryById,
   };
 
   return (
