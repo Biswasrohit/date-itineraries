@@ -112,6 +112,14 @@ export default function ItineraryDetail() {
   const isDateUpcoming = isUpcoming(itinerary.date);
   const allActivitiesCompleted = sortedActivities.every(a => a.completed);
 
+  // Combine date with first activity start time for countdown
+  const countdownTarget = (() => {
+    const firstStart = sortedActivities.find(a => a.startTime)?.startTime;
+    if (!firstStart) return itinerary.date;
+    const [h, m] = firstStart.split(':').map(Number);
+    return itinerary.date + (h * 60 + m) * 60 * 1000;
+  })();
+
   return (
     <div className="min-h-screen bg-gradient-romantic">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -181,7 +189,7 @@ export default function ItineraryDetail() {
           {/* Countdown for upcoming dates */}
           {isDateUpcoming && (
             <div className="bg-rose-50 rounded-xl p-6 mb-6">
-              <Countdown targetDate={itinerary.date} />
+              <Countdown targetDate={countdownTarget} />
             </div>
           )}
 

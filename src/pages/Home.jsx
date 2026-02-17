@@ -13,6 +13,16 @@ export default function Home() {
   const upcomingDates = getUpcoming();
   const completedDates = getCompleted();
 
+  // Combine date with first activity start time for countdown
+  const nextDateTarget = nextDate ? (() => {
+    const firstStart = [...(nextDate.activities || [])]
+      .sort((a, b) => a.order - b.order)
+      .find(a => a.startTime)?.startTime;
+    if (!firstStart) return nextDate.date;
+    const [h, m] = firstStart.split(':').map(Number);
+    return nextDate.date + (h * 60 + m) * 60 * 1000;
+  })() : null;
+
   const stats = [
     { label: 'Total Dates', value: itineraries.length, icon: Calendar },
     { label: 'Memories Made', value: completedDates.length, icon: Image },
@@ -54,7 +64,7 @@ export default function Home() {
               </div>
 
               <Countdown
-                targetDate={nextDate.date}
+                targetDate={nextDateTarget}
                 title="Counting down to our next adventure..."
               />
 
