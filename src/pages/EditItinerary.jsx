@@ -150,7 +150,7 @@ export default function EditItinerary() {
 
       await updateItinerary(id, {
         ...formData,
-        date: createLocalDate(formData.date),
+        date: createLocalDate(formData.date).getTime(),
         keyLocations,
         activities,
       });
