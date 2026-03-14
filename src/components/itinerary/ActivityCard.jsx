@@ -26,7 +26,7 @@ const activityColors = {
   surprise: 'badge-surprise',
 };
 
-export default function ActivityCard({ activity, onToggleComplete, onEdit, onUpdate, isDragging }) {
+export default function ActivityCard({ activity, onToggleComplete, onEdit, onUpdate, isDragging, dragHandleProps }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const Icon = activityIcons[activity.type] || MapPin;
 
@@ -51,7 +51,10 @@ export default function ActivityCard({ activity, onToggleComplete, onEdit, onUpd
         {/* Header */}
         <div className="flex items-start gap-3">
           {/* Drag Handle */}
-          <div className="cursor-grab active:cursor-grabbing text-ink-lighter hover:text-ink mt-1">
+          <div
+            className="cursor-grab active:cursor-grabbing text-ink-lighter hover:text-ink mt-1 touch-none"
+            {...dragHandleProps}
+          >
             <GripVertical className="w-4 h-4" />
           </div>
 

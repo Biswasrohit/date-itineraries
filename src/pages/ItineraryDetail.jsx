@@ -3,6 +3,9 @@ import {
   ArrowLeft, Calendar, MapPin, DollarSign, Clock, Edit, Trash2, Check, Share, Plus, CalendarPlus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useItinerary } from '../context/ItineraryContext';
 import ActivityCard from '../components/itinerary/ActivityCard';
 import ActivityForm from '../components/itinerary/ActivityForm';
@@ -10,11 +13,53 @@ import Countdown from '../components/features/Countdown';
 import { formatDate, isUpcoming, generateGoogleCalendarLink } from '../utils/dateUtils';
 import { useState } from 'react';
 
+function SortableActivityCard({ activity, index, onToggleComplete, onEdit }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: activity.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    position: 'relative',
+  };
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <ActivityCard
+        activity={activity}
+        onToggleComplete={onToggleComplete}
+        onEdit={onEdit}
+        isDragging={isDragging}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </motion.div>
+  );
+}
+
 export default function ItineraryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getItineraryById, updateActivity, addActivity, markAsCompleted, deleteItinerary } = useItinerary();
+  const { getItineraryById, updateActivity, addActivity, markAsCompleted, deleteItinerary, reorderActivities } = useItinerary();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+    useSensor(KeyboardSensor)
+  );
   const [showActivityForm, setShowActivityForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState(null);
   const [showCopied, setShowCopied] = useState(false);
@@ -109,6 +154,16 @@ export default function ItineraryDetail() {
   };
 
   const sortedActivities = [...(itinerary.activities || [])].sort((a, b) => a.order - b.order);
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = sortedActivities.findIndex(a => a.id === active.id);
+    const newIndex = sortedActivities.findIndex(a => a.id === over.id);
+    const reordered = arrayMove(sortedActivities, oldIndex, newIndex);
+    await reorderActivities(id, reordered.map(a => a.id));
+  };
   const isDateUpcoming = isUpcoming(itinerary.date);
   const allActivitiesCompleted = sortedActivities.every(a => a.completed);
 
@@ -236,22 +291,21 @@ export default function ItineraryDetail() {
             <div className="timeline-line" />
 
             {/* Activities */}
-            <div className="space-y-6">
-              {sortedActivities.map((activity, index) => (
-                <motion.div
-                  key={activity.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <ActivityCard
-                    activity={activity}
-                    onToggleComplete={handleToggleActivity}
-                    onEdit={handleEditActivity}
-                  />
-                </motion.div>
-              ))}
-            </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={sortedActivities.map(a => a.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-6">
+                  {sortedActivities.map((activity, index) => (
+                    <SortableActivityCard
+                      key={activity.id}
+                      activity={activity}
+                      index={index}
+                      onToggleComplete={handleToggleActivity}
+                      onEdit={handleEditActivity}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           </div>
 
           {sortedActivities.length === 0 && (

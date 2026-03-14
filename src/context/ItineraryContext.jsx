@@ -40,7 +40,7 @@ export function ItineraryProvider({ children }) {
     await removeMutation({ id });
   }, [removeMutation]);
 
-  // Add activity to itinerary
+  // Add activity to itinerary, inserted in chronological order by startTime
   const addActivity = useCallback(async (itineraryId, activity) => {
     const itinerary = itineraries.find(i => i.id === itineraryId);
     if (!itinerary) return;
@@ -49,16 +49,35 @@ export function ItineraryProvider({ children }) {
       id: crypto.randomUUID(),
       ...activity,
       completed: false,
-      order: itinerary.activities.length,
+      order: 0,
     };
+
+    const existing = [...itinerary.activities].sort((a, b) => a.order - b.order);
+
+    // Find insertion index based on startTime (HH:mm string comparison works for 24h)
+    let insertIndex = existing.length;
+    if (newActivity.startTime) {
+      const idx = existing.findIndex(
+        a => a.startTime && a.startTime > newActivity.startTime
+      );
+      if (idx !== -1) {
+        insertIndex = idx;
+      }
+    }
+
+    const updated = [
+      ...existing.slice(0, insertIndex),
+      newActivity,
+      ...existing.slice(insertIndex),
+    ].map((a, i) => ({ ...a, order: i }));
 
     await updateMutation({
       id: itineraryId,
-      updates: { activities: [...itinerary.activities, newActivity] },
+      updates: { activities: updated },
     });
   }, [itineraries, updateMutation]);
 
-  // Update activity
+  // Update activity — re-sort by startTime when time changes
   const updateActivity = useCallback(async (itineraryId, activityId, updates) => {
     const itinerary = itineraries.find(i => i.id === itineraryId);
     if (!itinerary) return;
@@ -67,9 +86,20 @@ export function ItineraryProvider({ children }) {
       a.id === activityId ? { ...a, ...updates } : a
     );
 
+    // Re-sort by startTime if the time was changed
+    const timeChanged = updates.startTime !== undefined;
+    const sorted = timeChanged
+      ? [...updatedActivities].sort((a, b) => {
+          if (!a.startTime && !b.startTime) return 0;
+          if (!a.startTime) return 1;
+          if (!b.startTime) return -1;
+          return a.startTime.localeCompare(b.startTime);
+        }).map((a, i) => ({ ...a, order: i }))
+      : updatedActivities;
+
     await updateMutation({
       id: itineraryId,
-      updates: { activities: updatedActivities },
+      updates: { activities: sorted },
     });
   }, [itineraries, updateMutation]);
 
