@@ -11,6 +11,7 @@ import EditItinerary from './pages/EditItinerary';
 import Memories from './pages/Memories';
 import Anniversaries from './pages/Anniversaries';
 import LoveNotesPage from './pages/LoveNotesPage';
+import Ratings from './pages/Ratings';
 
 // Layout Component
 function Layout({ children }) {
@@ -35,6 +36,7 @@ function App() {
           <Route path="/memories" element={<Layout><Memories /></Layout>} />
           <Route path="/anniversaries" element={<Layout><Anniversaries /></Layout>} />
           <Route path="/notes" element={<Layout><LoveNotesPage /></Layout>} />
+          <Route path="/ratings" element={<Layout><Ratings /></Layout>} />
           {/* Catch all - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

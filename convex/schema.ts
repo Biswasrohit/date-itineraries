@@ -87,4 +87,20 @@ export default defineSchema({
     message: v.string(),
     createdAt: v.number(),
   }).index("by_createdAt", ["createdAt"]),
+
+  ratings: defineTable({
+    title: v.string(),
+    category: v.union(
+      v.literal("movies"),
+      v.literal("shows"),
+      v.literal("anime"),
+      v.literal("food")
+    ),
+    subCategory: v.optional(v.string()),
+    rohitRating: v.optional(v.number()),
+    farhinRating: v.optional(v.number()),
+    watched: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_category", ["category"]),
 });

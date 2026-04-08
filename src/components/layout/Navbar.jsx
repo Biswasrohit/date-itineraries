@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Heart, Calendar, Image, Star, MessageCircleHeart, Menu, X } from 'lucide-react';
+import { Heart, Calendar, Image, Star, MessageCircleHeart, Trophy, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,6 +9,7 @@ const navItems = [
   { path: '/memories', label: 'Memories', icon: Image },
   { path: '/anniversaries', label: 'Milestones', icon: Star },
   { path: '/notes', label: 'Love Notes', icon: MessageCircleHeart },
+  { path: '/ratings', label: 'Ratings', icon: Trophy },
 ];
 
 export default function Navbar() {

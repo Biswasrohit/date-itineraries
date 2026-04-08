@@ -35,5 +35,3 @@ function calculateTimeLeft(targetDate) {
     isPast: false
   };
 }
-
-export default useCountdown;

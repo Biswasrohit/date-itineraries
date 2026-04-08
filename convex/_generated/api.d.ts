@@ -11,6 +11,7 @@
 import type * as anniversaries from "../anniversaries.js";
 import type * as itineraries from "../itineraries.js";
 import type * as loveNotes from "../loveNotes.js";
+import type * as ratings from "../ratings.js";
 
 import type {
   ApiFromModules,
@@ -22,6 +23,7 @@ declare const fullApi: ApiFromModules<{
   anniversaries: typeof anniversaries;
   itineraries: typeof itineraries;
   loveNotes: typeof loveNotes;
+  ratings: typeof ratings;
 }>;
 
 /**
