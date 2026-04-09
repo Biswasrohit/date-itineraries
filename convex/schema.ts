@@ -100,6 +100,7 @@ export default defineSchema({
     rohitRating: v.optional(v.number()),
     farhinRating: v.optional(v.number()),
     watched: v.boolean(),
+    posterUrl: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_category", ["category"]),
