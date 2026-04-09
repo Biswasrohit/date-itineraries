@@ -4,7 +4,7 @@ import {
   Clock, DollarSign, Lightbulb, ExternalLink, ChevronDown, ChevronUp, Check, GripVertical, Edit
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { formatTime, formatTimeRange, calculateDuration } from '../../utils/dateUtils';
+import { formatTime, calculateDuration } from '../../utils/dateUtils';
 
 const activityIcons = {
   shopping: ShoppingBag,
@@ -26,7 +26,7 @@ const activityColors = {
   surprise: 'badge-surprise',
 };
 
-export default function ActivityCard({ activity, onToggleComplete, onEdit, onUpdate, isDragging, dragHandleProps }) {
+export default function ActivityCard({ activity, onToggleComplete, onEdit, isDragging, dragHandleProps }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const Icon = activityIcons[activity.type] || MapPin;
 

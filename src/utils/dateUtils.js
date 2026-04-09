@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow, isToday, isTomorrow, isPast, isFuture } from 'date-fns';
+import { format, formatDistanceToNow, isToday, isTomorrow, isFuture } from 'date-fns';
 
 // Create a date at midnight in local timezone (not UTC)
 // Fixes timezone issues where dates shift by a day

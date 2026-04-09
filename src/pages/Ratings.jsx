@@ -17,7 +17,6 @@ import {
   Award,
 } from 'lucide-react';
 import {
-  // eslint-disable-next-line no-unused-vars -- used via <motion.foo> JSX, which this lint config doesn't track
   motion,
   AnimatePresence,
   LayoutGroup,

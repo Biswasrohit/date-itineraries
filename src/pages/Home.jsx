@@ -7,7 +7,7 @@ import ItineraryCard from '../components/itinerary/ItineraryCard';
 import { formatDate } from '../utils/dateUtils';
 
 export default function Home() {
-  const { itineraries, getNextDate, getUpcoming, getCompleted, loading } = useItinerary();
+  const { itineraries, getNextDate, getUpcoming, getCompleted } = useItinerary();
 
   const nextDate = getNextDate();
   const upcomingDates = getUpcoming();
@@ -112,7 +112,7 @@ export default function Home() {
           transition={{ delay: 0.2 }}
           className="grid grid-cols-3 gap-4 mb-12"
         >
-          {stats.map((stat, index) => {
+          {stats.map((stat) => {
             const Icon = stat.icon;
             return (
               <div
